@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ramot Getaway - Vacation Rental in Beit Shemesh</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h2>Ramot Getaway</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#amenities">Amenities</a></li>
+                <li><a href="#booking">Book Now</a></li>
+                <li><a href="#reviews">Reviews</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section with Parallax -->
+    <section id="home" class="hero parallax">
+        <div class="hero-content">
+            <h1 class="hero-title">Ramot Getaway</h1>
+            <p class="hero-subtitle">High-end vacation Suite in the Heart of Beit Shemesh</p>
+            <p class="hero-description">A cute ground floor rental in a great location - close to the stores and busses. Quiet and peaceful area, very friendly and warm environment.</p>
+            <div class="hero-buttons">
+                <a href="#booking" class="btn btn-primary">Reserve Now</a>
+            </div>
+        </div>
+        <div class="hero-overlay"></div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="gallery" class="gallery">
+        <div class="container">
+            <h2 class="section-title">Photo Gallery</h2>
+            <div class="gallery-grid">
+                <div class="gallery-item" data-src="images/2022-04-29.jpg">
+                    <img src="images/2022-04-29.jpg" alt="Ramot Getaway Interior" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/3N0A7269.jpg">
+                    <img src="images/3N0A7269.jpg" alt="Living Area" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/WhatsApp Image 2022-04-28 at 11.03.48 AM.jpeg">
+                    <img src="images/WhatsApp Image 2022-04-28 at 11.03.48 AM.jpeg" alt="Bedroom" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/WhatsApp Image 2022-04-28 at 11.03.49 AM.jpeg">
+                    <img src="images/WhatsApp Image 2022-04-28 at 11.03.49 AM.jpeg" alt="Kitchen Area" loading="lazy">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Amenities Section -->
+    <section id="amenities" class="amenities">
+        <div class="container">
+            <h2 class="section-title">What Makes Us Special</h2>
+            <div class="amenities-grid">
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-store"></i>
+                    </div>
+                    <h3>Close to Stores</h3>
+                    <p>Walking distance to all your shopping needs</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-wifi"></i>
+                    </div>
+                    <h3>Fast WiFi</h3>
+                    <p>up to 1.5 Gbps for video calls and streaming</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <h3>Self Check-in</h3>
+                    <p>Easy lockbox access for your convenience</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <h3>Free Parking</h3>
+                    <p>On-premises parking with EV charging</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <h3>Full Kitchen</h3>
+                    <p>Cook your own meals with all basics provided</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <h3>Workspace</h3>
+                    <p>Dedicated area for work and productivity</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <h3>Climate Control</h3>
+                    <p>Central AC and heating for comfort</p>
+                </div>
+                <div class="amenity-card">
+                    <div class="amenity-icon">
+                        <i class="fas fa-synagogue"></i>
+                    </div>
+                    <h3>Close to Shuls</h3>
+                    <p>Walking distance to local synagogues</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="booking" class="booking">
+        <div class="container">
+            <h2 class="section-title">Reserve Your Stay</h2>
+            <div class="booking-form-container">
+                <form class="booking-form" id="bookingForm">
+                    <div class="form-group">
+                        <label for="checkin">Check-in Date</label>
+                        <input type="date" id="checkin" name="checkin" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="checkout">Check-out Date</label>
+                        <input type="date" id="checkout" name="checkout" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="adults">Adults (max 2)</label>
+                            <select id="adults" name="adults" required>
+                                <option value="1">1 Adult</option>
+                                <option value="2" selected>2 Adults</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="children">Children (max 2)</label>
+                            <select id="children" name="children">
+                                <option value="0" selected>0 Children</option>
+                                <option value="1">1 Child</option>
+                                <option value="2">2 Children</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="crib" name="crib">
+                            <span class="checkmark"></span>
+                            Need a crib for baby
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Check Availability</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Reviews Section -->
+    <section id="reviews" class="reviews">
+        <div class="container">
+            <h2 class="section-title">What Our Guests Say</h2>
+            
+            <!-- Google Reviews Integration -->
+            <div class="google-reviews">
+                <div class="google-reviews-header">
+                    <h3>Leave a Review on Google</h3>
+                    <a href="https://g.page/r/CYj-CBXM5f_1EAI/review" class="btn btn-google" target="_blank">
+                        <i class="fab fa-google"></i> Write a Google Review
+                    </a>
+                </div>
+<!--                <div class="manual-reviews-info">-->
+<!--                    <p><strong>Customer Reviews:</strong> See what our guests say about their stay at Ramot Getaway.</p>-->
+<!--                    <p><em>Reviews are carefully curated from our Google Business Profile and guest feedback.</em></p>-->
+<!--                </div>-->
+            </div>
+
+            <!-- Manual Reviews -->
+            <div class="reviews-grid" id="reviewsGrid">
+                <div class="review-card">
+                    <div class="review-stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="review-text">"Amazing place! Perfect location, clean, and very comfortable. The host was super responsive and helpful."</p>
+                    <div class="review-author">
+                        <strong>Sarah M.</strong>
+                        <span class="review-date">March 2024</span>
+                    </div>
+                </div>
+                
+                <div class="review-card">
+                    <div class="review-stars">
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                        <span class="star">★</span>
+                    </div>
+                    <p class="review-text">"Great spot for a family vacation. The kids loved it and we appreciated the full kitchen and parking."</p>
+                    <div class="review-author">
+                        <strong>David L.</strong>
+                        <span class="review-date">February 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <div class="contact-content">
+                <div class="contact-info">
+                    <h3>Contact Information</h3>
+                    <div class="contact-item">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+972559953030">+972-55-995-3030</a>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>ramot-getaway@cohen.network</span>
+                    </div>
+                    <div class="contact-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Beit Shemesh, Israel</span>
+                    </div>
+                    <div class="whatsapp-contact">
+                        <a href="https://wa.me/+972559953030" class="btn btn-whatsapp" target="_blank">
+                            <i class="fab fa-whatsapp"></i> Message us on WhatsApp
+                        </a>
+                    </div>
+                </div>
+                
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone (optional)</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Ramot Getaway</h3>
+                    <p>Your perfect vacation rental in the heart of Beit Shemesh</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#home">Home</a></li>
+                        <li><a href="#gallery">Gallery</a></li>
+                        <li><a href="#amenities">Amenities</a></li>
+                        <li><a href="#booking">Book Now</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <p>Phone: <a href="tel:+972559953030">+972-55-995-3030</a></p>
+                    <p>Email: ramot-getaway@cohen.network</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; Ramot Getaway. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <div class="whatsapp-float" id="whatsappFloat">
+        <a href="https://wa.me/+972559953030" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Image Modal -->
+    <div class="modal" id="imageModal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="modalImage" alt="Gallery image">
+        <div class="caption" id="caption"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
