@@ -104,6 +104,9 @@ document.addEventListener('DOMContentLoaded', function() {
         e.preventDefault();
         
         const formData = new FormData(this);
+        const guestName = (formData.get('name') || '').trim();
+        const guestEmail = (formData.get('email') || '').trim();
+        const guestPhone = (formData.get('phone') || '').trim();
         const checkinDate = new Date(formData.get('checkin'));
         const checkoutDate = new Date(formData.get('checkout'));
         const adults = formData.get('adults');
@@ -134,9 +137,9 @@ document.addEventListener('DOMContentLoaded', function() {
             adults: adults,
             children: children,
             crib: crib,
-            from_name: 'Website Booking', // You can add name field to form if needed
-            from_email: 'booking@ramotgetaway.com', // Your email
-            phone: 'Not provided' // You can add phone field to form if needed
+            from_name: guestName || 'Website Booking',
+            from_email: guestEmail || 'booking@ramotgetaway.com',
+            phone: guestPhone || 'Not provided'
         };
 
         // Send email via EmailJS
@@ -147,6 +150,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Create booking summary for WhatsApp
                 const bookingSummary = `
 Booking Request:
+Name: ${guestName || 'N/A'}
+Email: ${guestEmail || 'N/A'}
+Phone: ${guestPhone || 'N/A'}
 Check-in: ${checkinDate.toLocaleDateString()}
 Check-out: ${checkoutDate.toLocaleDateString()}
 Nights: ${nights}
@@ -176,6 +182,9 @@ Please confirm availability and pricing.
                 // Fallback to WhatsApp only
                 const bookingSummary = `
 Booking Request:
+Name: ${guestName || 'N/A'}
+Email: ${guestEmail || 'N/A'}
+Phone: ${guestPhone || 'N/A'}
 Check-in: ${checkinDate.toLocaleDateString()}
 Check-out: ${checkoutDate.toLocaleDateString()}
 Nights: ${nights}

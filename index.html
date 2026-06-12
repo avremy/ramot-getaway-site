@@ -138,6 +138,20 @@
             <div class="booking-form-container">
                 <form class="booking-form" id="bookingForm">
                     <div class="form-group">
+                        <label for="bookingName">Your Name</label>
+                        <input type="text" id="bookingName" name="name" placeholder="Full name" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookingEmail">Email</label>
+                            <input type="email" id="bookingEmail" name="email" placeholder="you@example.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookingPhone">Phone</label>
+                            <input type="tel" id="bookingPhone" name="phone" placeholder="+972 …" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <label for="checkin">Check-in Date</label>
                         <input type="date" id="checkin" name="checkin" required>
                     </div>
