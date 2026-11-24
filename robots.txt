@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ramot-getaway.cohen.network/sitemap.xml
