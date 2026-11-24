@@ -6,6 +6,17 @@
     <title>Ramot Getaway - Vacation Rental in Beit Shemesh</title>
     <meta name="description" content="Ramot Getaway is a ground-floor vacation suite in Beit Shemesh, close to shops and buses. Explore photos, amenities and booking options for your stay.">
     <link rel="canonical" href="https://ramot-getaway.cohen.network/">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ramot-getaway.cohen.network/">
+    <meta property="og:title" content="Ramot Getaway - Vacation Rental in Beit Shemesh">
+    <meta property="og:description" content="Ramot Getaway is a ground-floor vacation suite in Beit Shemesh, close to shops and buses. Explore photos, amenities and booking options for your stay.">
+    <meta property="og:image" content="https://ramot-getaway.cohen.network/images/airbnb-listing-01.jpg">
+    <meta property="og:image:alt" content="Bedroom with double bed, bedside table and window">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Ramot Getaway - Vacation Rental in Beit Shemesh">
+    <meta name="twitter:description" content="Ramot Getaway is a ground-floor vacation suite in Beit Shemesh, close to shops and buses. Explore photos, amenities and booking options for your stay.">
+    <meta name="twitter:image" content="https://ramot-getaway.cohen.network/images/airbnb-listing-01.jpg">
+    <meta name="twitter:image:alt" content="Bedroom with double bed, bedside table and window">
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -18,19 +29,19 @@
             <div class="nav-brand">
                 <h2>Ramot Getaway</h2>
             </div>
-            <ul class="nav-menu">
+            <ul class="nav-menu" id="navMenu">
                 <li><a href="#home">Home</a></li>
                 <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#amenities">Amenities</a></li>
-                <li><a href="#booking">Book Now</a></li>
+                <li><a href="#booking">Request Availability</a></li>
                 <li><a href="#reviews">Reviews</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
-            <div class="hamburger">
+            <button class="hamburger" type="button" aria-controls="navMenu" aria-expanded="false" aria-label="Open navigation menu">
                 <span></span>
                 <span></span>
                 <span></span>
-            </div>
+            </button>
         </nav>
     </header>
 
@@ -41,7 +52,8 @@
             <p class="hero-subtitle">High-end vacation Suite in the Heart of Beit Shemesh</p>
             <p class="hero-description">A cute ground floor rental in a great location - close to the stores and busses. Quiet and peaceful area, very friendly and warm environment.</p>
             <div class="hero-buttons">
-                <a href="#booking" class="btn btn-primary">Reserve Now</a>
+                <a href="#booking" class="btn btn-primary">Request Availability</a>
+                <a href="https://www.airbnb.com/rooms/615293478807650528" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Book on Airbnb</a>
             </div>
         </div>
         <div class="hero-overlay"></div>
@@ -52,6 +64,21 @@
         <div class="container">
             <h2 class="section-title">Photo Gallery</h2>
             <div class="gallery-grid">
+                <div class="gallery-item" data-src="images/airbnb-listing-01.jpg">
+                    <img src="images/airbnb-listing-01.jpg" alt="Bedroom with double bed, bedside table and window" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/airbnb-listing-02.jpg">
+                    <img src="images/airbnb-listing-02.jpg" alt="Tree-lined street and gated exterior" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/airbnb-listing-03.jpg">
+                    <img src="images/airbnb-listing-03.jpg" alt="Kitchenette with white cabinets, sink, countertop oven and dining area" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/airbnb-listing-04.jpg">
+                    <img src="images/airbnb-listing-04.jpg" alt="Living-area sofa beside kitchenette, with doorway to bedroom" loading="lazy">
+                </div>
+                <div class="gallery-item" data-src="images/airbnb-listing-05.jpg">
+                    <img src="images/airbnb-listing-05.jpg" alt="Paved outdoor approach with shrubs and fence" loading="lazy">
+                </div>
                 <div class="gallery-item" data-src="images/2022-04-29.jpg">
                     <img src="images/2022-04-29.jpg" alt="Ramot Getaway Interior" loading="lazy">
                 </div>
@@ -72,6 +99,14 @@
     <section id="amenities" class="amenities">
         <div class="container">
             <h2 class="section-title">What Makes Us Special</h2>
+            <div class="property-summary" id="propertySummary">
+                <h3>Your stay at a glance</h3>
+                <p>Capacity: 2 adults plus 2 children. 1 bedroom, 1 double bed, 1 bathroom. Ground floor.</p>
+                <p>Free parking · Kitchen · Washer/dryer · Self check-in with lockbox.</p>
+                <p>Check-in after 3pm; check-out before 10am. Pets allowed (maximum 1 pet). No smoking, including vaping and e-cigarettes.</p>
+                <p>Confirm children's sleeping arrangements, crib availability and occupancy with the host before booking.</p>
+                <p>See <a href="https://www.airbnb.com/rooms/615293478807650528" target="_blank" rel="noopener noreferrer">Airbnb for full current house rules and cancellation policies</a>.</p>
+            </div>
             <div class="amenities-grid">
                 <div class="amenity-card">
                     <div class="amenity-icon">
@@ -85,7 +120,7 @@
                         <i class="fas fa-wifi"></i>
                     </div>
                     <h3>Fast WiFi</h3>
-                    <p>up to 1.5 Gbps for video calls and streaming</p>
+                    <p>WiFi for your stay</p>
                 </div>
                 <div class="amenity-card">
                     <div class="amenity-icon">
@@ -136,8 +171,9 @@
     <!-- Booking Section -->
     <section id="booking" class="booking">
         <div class="container">
-            <h2 class="section-title">Reserve Your Stay</h2>
+            <h2 class="section-title">Request Availability</h2>
             <div class="booking-form-container">
+                <p class="booking-note">This is an inquiry, not an instant reservation. Dates and prices require host confirmation. Confirm children's sleeping arrangements, crib availability and occupancy with the host before booking.</p>
                 <form class="booking-form" id="bookingForm">
                     <div class="form-group">
                         <label for="bookingName">Your Name</label>
@@ -182,10 +218,12 @@
                         <label class="checkbox-label">
                             <input type="checkbox" id="crib" name="crib">
                             <span class="checkmark"></span>
-                            Need a crib for baby
+                            Request a baby crib (subject to host confirmation)
                         </label>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-full">Check Availability</button>
+                    <button type="submit" class="btn btn-primary btn-full">Request Availability</button>
+                    <div id="bookingStatus" class="form-status" role="status" aria-live="polite" aria-atomic="true"></div>
+                    <p class="privacy-link">How we use your details: <a href="#privacy">Privacy note</a></p>
                 </form>
             </div>
         </div>
@@ -220,6 +258,7 @@
                         <span class="star">★</span>
                         <span class="star">★</span>
                     </div>
+                    <p class="review-source">Guest feedback</p>
                     <p class="review-text">"Amazing place! Perfect location, clean, and very comfortable. The host was super responsive and helpful."</p>
                     <div class="review-author">
                         <strong>Sarah M.</strong>
@@ -235,6 +274,7 @@
                         <span class="star">★</span>
                         <span class="star">★</span>
                     </div>
+                    <p class="review-source">Guest feedback</p>
                     <p class="review-text">"Great spot for a family vacation. The kids loved it and we appreciated the full kitchen and parking."</p>
                     <div class="review-author">
                         <strong>David L.</strong>
@@ -258,14 +298,14 @@
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-envelope"></i>
-                        <span>ramot-getaway@cohen.network</span>
+                        <a href="mailto:ramot-getaway@cohen.network">ramot-getaway@cohen.network</a>
                     </div>
                     <div class="contact-item">
                         <i class="fas fa-map-marker-alt"></i>
                         <span>Beit Shemesh, Israel</span>
                     </div>
                     <div class="whatsapp-contact">
-                        <a href="https://wa.me/+972559953030" class="btn btn-whatsapp" target="_blank">
+                        <a href="https://wa.me/972559953030" class="btn btn-whatsapp" target="_blank" rel="noopener noreferrer">
                             <i class="fab fa-whatsapp"></i> Message us on WhatsApp
                         </a>
                     </div>
@@ -289,8 +329,18 @@
                         <textarea id="message" name="message" rows="5" required></textarea>
                     </div>
                     <button type="submit" class="btn btn-primary">Send Message</button>
+                    <div id="contactStatus" class="form-status" role="status" aria-live="polite" aria-atomic="true"></div>
+                    <p class="privacy-link">How we use your details: <a href="#privacy">Privacy note</a></p>
                 </form>
             </div>
+        </div>
+    </section>
+
+    <section id="privacy" class="privacy">
+        <div class="container">
+            <h2 class="section-title">Privacy note</h2>
+            <p>We use the name, email, phone and stay or message details you submit to reply to your inquiry and coordinate stays. Form submissions are processed via EmailJS and the underlying email service.</p>
+            <p>WhatsApp data is sent to WhatsApp only when you choose an external WhatsApp link; review the draft before sending. Bookings made through Airbnb are subject to Airbnb's <a href="https://www.airbnb.com/help/article/2855" target="_blank" rel="noopener noreferrer">privacy policy</a>.</p>
         </div>
     </section>
 
@@ -308,13 +358,13 @@
                         <li><a href="#home">Home</a></li>
                         <li><a href="#gallery">Gallery</a></li>
                         <li><a href="#amenities">Amenities</a></li>
-                        <li><a href="#booking">Book Now</a></li>
+                        <li><a href="#booking">Request Availability</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Contact</h4>
                     <p>Phone: <a href="tel:+972559953030">+972-55-995-3030</a></p>
-                    <p>Email: ramot-getaway@cohen.network</p>
+                    <p>Email: <a href="mailto:ramot-getaway@cohen.network">ramot-getaway@cohen.network</a></p>
                 </div>
             </div>
             <div class="footer-bottom">
@@ -325,7 +375,7 @@
 
     <!-- Floating WhatsApp Button -->
     <div class="whatsapp-float" id="whatsappFloat">
-        <a href="https://wa.me/+972559953030" target="_blank">
+        <a href="https://wa.me/972559953030" target="_blank" rel="noopener noreferrer" aria-label="Message Ramot Getaway on WhatsApp">
             <i class="fab fa-whatsapp"></i>
         </a>
     </div>

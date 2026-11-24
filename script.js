@@ -1,20 +1,33 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize EmailJS with your public key
-    emailjs.init('gO9gUVHiJYer7EotG'); // Replace with your actual public key from EmailJS dashboard
+    let emailReady = false;
+    try {
+        if (window.emailjs) {
+            emailjs.init('gO9gUVHiJYer7EotG'); // EmailJS public browser key, not a secret.
+            emailReady = true;
+        }
+    } catch (_) { /* Forms will offer direct contact; navigation stays usable. */ }
     // Mobile menu toggle
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
 
-    hamburger.addEventListener('click', function() {
-        hamburger.classList.toggle('active');
-        navMenu.classList.toggle('active');
-    });
+    const mobileMenu = window.matchMedia('(max-width: 768px)');
+    function setMenu(open) {
+        const expanded = mobileMenu.matches && open;
+        hamburger.classList.toggle('active', expanded);
+        navMenu.classList.toggle('active', expanded);
+        hamburger.setAttribute('aria-expanded', String(expanded));
+        hamburger.setAttribute('aria-label', expanded ? 'Close navigation menu' : 'Open navigation menu');
+        navMenu.hidden = mobileMenu.matches && !expanded;
+    }
+    setMenu(false);
+    mobileMenu.addEventListener('change', () => setMenu(false));
+    hamburger.addEventListener('click', () => setMenu(!navMenu.classList.contains('active')));
 
     // Close mobile menu when clicking on a link
     document.querySelectorAll('.nav-menu a').forEach(link => {
         link.addEventListener('click', function() {
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
+            setMenu(false);
         });
     });
 
@@ -84,14 +97,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const checkoutInput = document.getElementById('checkout');
 
     // Set minimum date to today
-    const today = new Date().toISOString().split('T')[0];
+    const now = new Date();
+    const today = [now.getFullYear(), String(now.getMonth() + 1).padStart(2, '0'), String(now.getDate()).padStart(2, '0')].join('-');
     checkinInput.min = today;
     checkoutInput.min = today;
 
     // Update checkout minimum date when checkin changes
     checkinInput.addEventListener('change', function() {
         const checkinDate = new Date(this.value);
-        checkinDate.setDate(checkinDate.getDate() + 1); // Minimum 1 night stay
+        if (!Number.isFinite(checkinDate.getTime())) {
+            checkoutInput.min = today;
+            return;
+        }
+        checkinDate.setUTCDate(checkinDate.getUTCDate() + 1); // Calendar day, independent of daylight-saving changes.
         checkoutInput.min = checkinDate.toISOString().split('T')[0];
         
         // Clear checkout if it's before new minimum
@@ -102,112 +120,68 @@ document.addEventListener('DOMContentLoaded', function() {
 
     bookingForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn.disabled) return;
+        const status = document.getElementById('bookingStatus');
         const formData = new FormData(this);
         const guestName = (formData.get('name') || '').trim();
         const guestEmail = (formData.get('email') || '').trim();
         const guestPhone = (formData.get('phone') || '').trim();
-        const checkinDate = new Date(formData.get('checkin'));
-        const checkoutDate = new Date(formData.get('checkout'));
+        const checkin = formData.get('checkin');
+        const checkout = formData.get('checkout');
+        const checkinDate = new Date(checkin);
+        const checkoutDate = new Date(checkout);
         const adults = formData.get('adults');
         const children = formData.get('children');
         const crib = formData.get('crib') ? 'Yes' : 'No';
-
-        // Validate dates
-        if (checkoutDate <= checkinDate) {
-            alert('Check-out date must be after check-in date');
+        if (!this.checkValidity() || !Number.isFinite(checkinDate.getTime()) || !Number.isFinite(checkoutDate.getTime()) || checkin < today || checkoutDate <= checkinDate) {
+            status.textContent = 'Your request was not sent. Complete the required details, choose a check-in date of today or later, and a check-out date after check-in.';
             return;
         }
-
-        // Calculate nights
-        const timeDiff = checkoutDate - checkinDate;
-        const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
-
-        // Show loading state
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Processing...';
-        submitBtn.disabled = true;
-
-        // Prepare template parameters for EmailJS
+        const nights = Math.round((checkoutDate - checkinDate) / 86400000);
+        const bookingSummary = [
+            'Availability request:',
+            `Name: ${guestName}`,
+            `Email: ${guestEmail}`,
+            `Phone: ${guestPhone}`,
+            `Check-in: ${checkin}`,
+            `Check-out: ${checkout}`,
+            `Nights: ${nights}`,
+            `Adults: ${adults}`,
+            `Children: ${children}`,
+            `Crib requested: ${crib}`,
+            'Please confirm availability and pricing.'
+        ].join('\n');
         const templateParams = {
-            checkin: checkinDate.toLocaleDateString(),
-            checkout: checkoutDate.toLocaleDateString(),
-            nights: nights,
-            adults: adults,
-            children: children,
-            crib: crib,
-            from_name: guestName || 'Website Booking',
-            from_email: guestEmail || 'booking@ramotgetaway.com',
-            phone: guestPhone || 'Not provided'
+            checkin,
+            checkout,
+            nights, adults, children, crib,
+            from_name: guestName,
+            from_email: guestEmail,
+            phone: guestPhone
         };
-
-        // Send email via EmailJS
-        emailjs.send('service_zov0yer', 'template_y5stmvv', templateParams)
-            .then(function(response) {
-                console.log('Booking email sent successfully:', response.status, response.text);
-                
-                // Create booking summary for WhatsApp
-                const bookingSummary = `
-Booking Request:
-Name: ${guestName || 'N/A'}
-Email: ${guestEmail || 'N/A'}
-Phone: ${guestPhone || 'N/A'}
-Check-in: ${checkinDate.toLocaleDateString()}
-Check-out: ${checkoutDate.toLocaleDateString()}
-Nights: ${nights}
-Adults: ${adults}
-Children: ${children}
-Crib needed: ${crib}
-
-Please confirm availability and pricing.
-                `;
-
-                // Show success message
-                alert('Thank you! Your booking request has been sent. We will contact you soon to confirm availability.');
-                
-                // Create WhatsApp link with booking details
-                const phoneNumber = '+972559953030';
-                const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(bookingSummary)}`;
-                
-                // Open WhatsApp
-                window.open(whatsappURL, '_blank');
-                
-                // Reset form
-                bookingForm.reset();
-            })
-            .catch(function(error) {
-                console.error('Failed to send booking email:', error);
-                
-                // Fallback to WhatsApp only
-                const bookingSummary = `
-Booking Request:
-Name: ${guestName || 'N/A'}
-Email: ${guestEmail || 'N/A'}
-Phone: ${guestPhone || 'N/A'}
-Check-in: ${checkinDate.toLocaleDateString()}
-Check-out: ${checkoutDate.toLocaleDateString()}
-Nights: ${nights}
-Adults: ${adults}
-Children: ${children}
-Crib needed: ${crib}
-
-Please confirm availability and pricing.
-                `;
-
-                const phoneNumber = '+972559953030';
-                const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(bookingSummary)}`;
-                
-                alert('Your booking request will be sent via WhatsApp.');
-                window.open(whatsappURL, '_blank');
-                
-                bookingForm.reset();
-            })
-            .finally(function() {
-                // Reset button state
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            });
+        const originalText = submitBtn.textContent;
+        status.textContent = 'Sending your availability request...';
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+        Promise.resolve().then(() => {
+            if (!emailReady) throw new Error('Email service unavailable');
+            return emailjs.send('service_zov0yer', 'template_y5stmvv', templateParams);
+        }).then(() => {
+            status.textContent = 'Your request was sent. Dates and prices still require host confirmation; this is not a confirmed reservation.';
+            bookingForm.reset();
+        }).catch(() => {
+            status.textContent = 'Your request was not sent. Your details are still here. Please try again, or choose to send your request on WhatsApp: ';
+            const link = document.createElement('a');
+            link.href = 'https://wa.me/972559953030?text=' + encodeURIComponent(bookingSummary);
+            link.textContent = 'Open WhatsApp with your request';
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            status.append(link);
+        }).finally(() => {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        });
     });
 
     // Contact form handling
@@ -221,10 +195,12 @@ Please confirm availability and pricing.
         const email = formData.get('email');
         const phone = formData.get('phone');
         const message = formData.get('message');
+        const status = document.getElementById('contactStatus');
 
         // Show loading state
         const submitBtn = this.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
+        status.textContent = 'Sending your message...';
         submitBtn.textContent = 'Sending...';
         submitBtn.disabled = true;
 
@@ -237,12 +213,15 @@ Please confirm availability and pricing.
         };
 
         // Send email via EmailJS
-        emailjs.send('service_zov0yer', 'template_mzckjrc', templateParams)
+        Promise.resolve().then(() => {
+            if (!emailReady) throw new Error('Email service unavailable');
+            return emailjs.send('service_zov0yer', 'template_mzckjrc', templateParams);
+        })
             .then(function(response) {
                 console.log('Contact email sent successfully:', response.status, response.text);
                 
                 // Show success message
-                alert('Thank you for your message! We have received your inquiry and will respond soon.');
+                status.textContent = 'Your message was sent. We will reply to your inquiry.';
                 
                 // Reset form
                 contactForm.reset();
@@ -250,7 +229,16 @@ Please confirm availability and pricing.
             .catch(function(error) {
                 console.error('Failed to send contact email:', error);
                 
-                alert('There was an error sending your message. Please try again or contact us directly.');
+                status.textContent = 'Your message was not sent. Your details are still here. Please try again or contact us directly: ';
+                const emailLink = document.createElement('a');
+                emailLink.href = 'mailto:ramot-getaway@cohen.network';
+                emailLink.textContent = 'Email us';
+                const whatsappLink = document.createElement('a');
+                whatsappLink.href = 'https://wa.me/972559953030';
+                whatsappLink.textContent = 'Message us on WhatsApp';
+                whatsappLink.target = '_blank';
+                whatsappLink.rel = 'noopener noreferrer';
+                status.append(emailLink, ' or ', whatsappLink);
             })
             .finally(function() {
                 // Reset button state
@@ -316,6 +304,7 @@ Please confirm availability and pricing.
         const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
         
         reviewCard.innerHTML = `
+            <p class="review-source">Airbnb review excerpt · <a href="https://www.airbnb.com/rooms/615293478807650528/reviews" target="_blank" rel="noopener noreferrer">Read full reviews on Airbnb</a></p>
             <div class="review-stars">${stars}</div>
             <p class="review-text">"${text}"</p>
             <div class="review-author">
@@ -337,8 +326,8 @@ Please confirm availability and pricing.
             
             // Close mobile menu
             if (navMenu.classList.contains('active')) {
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
+                setMenu(false);
+                hamburger.focus();
             }
         }
     });

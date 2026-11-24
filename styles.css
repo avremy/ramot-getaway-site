@@ -1,3 +1,18 @@
+[hidden] { display: none !important; }
+
+:focus-visible {
+    outline: 3px solid #b85c00 !important;
+    outline-offset: 3px;
+}
+
+.booking a:not(.btn) { color: var(--white); text-decoration: underline; }
+.property-summary { margin-bottom: 2rem; padding: 1.5rem; background: var(--background-light); border-radius: var(--border-radius); }
+.property-summary p, .privacy p { margin-top: 0.75rem; }
+.booking-note { margin-bottom: 1.5rem; }
+.form-status:not(:empty) { margin-top: 1rem; }
+.privacy-link, .review-source { margin-top: 0.75rem; font-size: 0.9rem; }
+button:disabled { cursor: wait; opacity: 0.75; }
+
 * {
     margin: 0;
     padding: 0;
@@ -90,6 +105,9 @@ body {
 }
 
 .hamburger {
+    background: transparent;
+    border: 0;
+    padding: 8px;
     display: none;
     flex-direction: column;
     cursor: pointer;
@@ -699,7 +717,7 @@ section {
 @media (max-width: 768px) {
     .nav-menu {
         position: fixed;
-        left: -100%;
+        left: 0;
         top: 70px;
         flex-direction: column;
         background-color: var(--white);
