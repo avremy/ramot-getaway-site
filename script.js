@@ -340,26 +340,205 @@ document.addEventListener('DOMContentLoaded', function() {
     nextBtn.addEventListener('click', () => scrollReviews(1));
     reviewsTrack.addEventListener('scroll', () => raf(updateReviewButtons), { passive: true });
 
-    // Add reviews functionality (for manual review addition)
-    window.addReview = function(name, rating, text, date) {
-        const reviewsGrid = document.getElementById('reviewsGrid');
-        const reviewCard = document.createElement('div');
-        reviewCard.className = 'review-card';
-        
-        const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating);
-        
-        reviewCard.innerHTML = `
-            <p class="review-source">Airbnb review excerpt · <a href="https://www.airbnb.com/rooms/615293478807650528/reviews" target="_blank" rel="noopener noreferrer">Read full reviews on Airbnb</a></p>
-            <div class="review-stars">${stars}</div>
-            <p class="review-text">"${text}"</p>
-            <div class="review-author">
-                <strong>${name}</strong>
-                <span class="review-date">${date}</span>
-            </div>
-        `;
-        
-        reviewsGrid.appendChild(reviewCard);
+    // ---------------------------------------------------------------------
+    // Reviews
+    // ---------------------------------------------------------------------
+    const AIRBNB_REVIEWS_URL = 'https://www.airbnb.com/rooms/615293478807650528/reviews';
+
+    // Every 4- and 5-star review on the Airbnb listing, newest first, as written by the guest
+    // (reviews written in another language are kept in that language; the last field is its code).
+    // To add one: put a new line at the top with the guest's name, stars, month and text.
+    const AIRBNB_REVIEWS = [
+        ['Lisa', 5, 'November 2026', 'My husband and I have stayed at this location 4 times now. Avremey lives nearby and is always easy to communicate with. The location is nearby to parks, shopping and shuls. The apartment is always clean and with the right amenities provided. A/C and heat work well.'],
+        ['Amiella', 5, 'August 2026', 'I stayed for a month, despite a lot of other reviews saying space it too small for a longer stay I think it was just fine with two people. The space was clean and Avremy responded quickly to any questions/concerns and was very kind and welcoming.'],
+        ['Erin', 5, 'January 2026', 'Avremy was very helpful with a small issue and addressed it immediately. The apartment was perfect for our needs and met all our expectations.'],
+        ['Shmuel', 5, 'November 2025', 'Great host clean place.'],
+        ['Daniel', 4, 'October 2025', 'Avremy was helpful and responded quickly to any questions. He was friendly and easy to deal with. The flat was very clean and it was great to have own entrance etc. Aircon very effective and a new fridge/freezer.'],
+        ['Madeline', 4, 'September 2025', 'Avremy’s place was perfect for what we needed it for, a quick stopover, motzei shabbos before we flew home through Ben Gurion. Thank you to Avremy for your hospitality.'],
+        ['Stephen', 5, 'September 2025', 'Avremy was helpful as we had to make last minute adjustments on the reantal'],
+        ['David', 5, 'August 2025', 'My wife and I genuinely enjoyed our two-week stay at Avremy\'s apartment in Bet Shemesh Aleph. We were encouraged by the photos, which initially left us a bit surprised when it turned out to be somewhat smaller than we expected. However, once we settled in, unpacked and started living there, we began regarding it as "cozy comfy," just big enough to meet all our needs in a charming and comfortable way. The apartment is very modern, and it is designed to maximize every square inch of space. The end result was an apartment where we quickly felt at home and would unquestionably stay at again. Not to be overlooked is its location, which is in the middle of a lovely, tree-filled neighborhood, walking distance to abundant shopping. The apartment itself was very quiet, with a very comfortable bed and pillows. All in all, highly recommended for two people looking for a sweet place from which to enjoy Bet Shemesh!'],
+        ['David', 5, 'July 2025', 'Great host and nice place to stay.'],
+        ['David', 5, 'June 2025', 'Recommend this place .'],
+        ['אוריאל', 5, 'May 2025', 'אברהמי היה נגיש וזמין מאד, אדיב ויצירתי.', 'he'],
+        ['Merril', 5, 'April 2025', 'This was quite a find as the apartment was clean, had a washer/dryer, good sunlight, near several parks, walking distance to Dolev and the Mercaz, was on the ground floor and allows for pets!\nAlso, the host was very responsive even though he was traveling!'],
+        ['Lisa', 5, 'February 2025', 'This is our 4th time staying at this location. The hosts are kind and thoughtful. This ground level apartment is a modest size but it is quite perfect for a couple. All appliances and accommodations worked well. The bathroom is always clean, and the refrigerator is a perfect size. The split mattress bed is comfortable with plenty of warm blankets. A washer and dryer is available on site. There is shopping and bus stops close by. Avremy has always worked well with us whether it be months out or last minute.'],
+        ['Libby', 5, 'November 2024', 'The location was good. A few minutes drive to grocery stores, and parks within walking distance. We liked that it was a quiet and private neighborhood and on the ground flood. We also really appreciated having parking right in front. Avrumy was very responsive and checked in with us during the stay to make sure we had what we needed. He was also extremely gracious about allowing us a late checkout, which was so helpful with a baby. Our only complaint was that the apartment didn\'t appear to have been cleaned before our stay - hair and dirt on the floor etc. But overall the experience was positive, and the apartment worked for us.'],
+        ['Diane', 5, 'September 2024', 'Avremy was a very helpful host with all our requests\nThe place was conveniently located for our Shabbat in RBS and the place was very clean and well maintained\nWould definitely stay again'],
+        ['Daniel', 5, 'August 2024', 'The host is very nice and friendly.\nThe apartment is nice and comfortable, the area is quiet and private.\nWe enjoyed ourselves very much.\nThank you :)'],
+        ['Carol', 4, 'August 2024', 'This lovely little apartment is a real gem.  It is in a very convenient location and unusual for its size in that it has a separate bedroom. All the other 2 person occupancy apartments in the area we checked out are studios.'],
+        ['Moseh', 5, 'July 2024', 'מענה תמידי , לפועל לא יצא להיות במקום עקב שמחה משפחתית והסתדרנו על זכות בשבת אחרת. תודה', 'he'],
+        ['Monica', 5, 'June 2024', 'The place is small but very well equipped. It’s has a private entrance and location is well located in the town. The host was responsive and helpful. Overall it served well for 2 people.'],
+        ['Lisa', 5, 'December 2023', 'We have stayed here before and were glad it was available for our visit. It is neat and clean and has everything we needed and is centrally located to shopping and restaurants. We will probably stay here again if available for future visits.'],
+        ['Susana', 5, 'December 2023', 'Pasamos una estancia muy agradable. Disfrutamos la playa y los restaurantes de la zona. Minisuper abierto 24/7. Personal del edificio muy amable. Nos sentimos como en casa. Nos gustaría regresar en verano', 'es'],
+        ['Jerry', 5, 'October 2023', 'This is the second time we stayed in this AirBnb.   The hosts checked in with us periodically to ensure that everything was ok.   We felt very comfortable in the apartment.   The location is close to several bus lines, and in walking distance of several grocery stores, both large and small.'],
+        ['Lee', 5, 'August 2023', 'We’re picky people but have no complaints after staying here. It fit our needs perfectly.'],
+        ['Miri', 5, 'July 2023', 'Our stay in RAMAT BEIT SHEMESH א was very peaceful.  It’s an ideal place for two people.'],
+        ['Rephoel', 5, 'July 2023', 'We will be back!'],
+        ['Quint Thibault', 5, 'May 2023', 'A very nice and helpful host. The apartment has corresponded to the specifications. There is a very uncomplicated access to the apartment (You have your own access at the house.) In front of the building is always some parking space free. The people on site are all very nice.'],
+        ['Rebecca', 5, 'February 2023', 'My good friends stayed here for two nights to be close to family for a bar mitzvah. It was perfect: walking distance on Shabat but still their own space. Quiet and clean. Good heating for the very cold weather we had.'],
+        ['Jerry', 5, 'October 2022', 'This apartment is clean, comfortable, and in a good location.  We would recommend it to others.'],
+        ['Romy', 5, 'September 2022', 'It was a perfect stay.Super clean,excellent shower and appliances a/c and had everything we needed.Centrally located,beautifully  decorated and most of all very helpful host.Avremy was always there for anything we needed. Without a doubt I would recommend this rental to family and friends in the future.Thank you!'],
+        ['Shoshana', 5, 'September 2022', 'Cosy and clean, close to everything'],
+        ['Shana', 5, 'June 2022', 'Accommodation was great - perfect for what we needed. Small and compact, good AC, great location. Avremi was very helpful and friendly. I\'m sure we\'ll be back again in the future. Would highly recommend this apartment.']
+    ];
+
+    function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text != null) node.textContent = text;
+        return node;
+    }
+
+    // Builds one review card. Everything is set with textContent, so review text can never inject markup.
+    function buildReviewCard({ name, rating, text, date, sourceLabel, sourceUrl, sourceLinkText, nameUrl, note, variant, lang }) {
+        const card = el('div', 'review-card' + (variant ? ` review-card--${variant}` : ''));
+        const source = el('p', 'review-source', sourceLabel + ' · ');
+        const link = el('a', null, sourceLinkText);
+        link.href = sourceUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        source.appendChild(link);
+
+        const stars = el('div', 'review-stars', '★'.repeat(rating) + '☆'.repeat(5 - rating));
+        stars.setAttribute('aria-label', `${rating} out of 5 stars`);
+
+        const body = el('p', 'review-text', `"${text.trim()}"`);
+        if (lang) {
+            body.lang = lang;
+            body.dir = 'auto';
+        }
+        const author = el('div', 'review-author');
+        const who = el('strong', null, nameUrl ? null : name);
+        if (nameUrl) {
+            const a = el('a', null, name);
+            a.href = nameUrl;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            who.appendChild(a);
+        }
+        author.append(who, el('span', 'review-date', date));
+
+        card.append(source, stars, body);
+        if (note) card.appendChild(el('p', 'review-note', note));
+        card.appendChild(author);
+        return card;
+    }
+
+    // Long reviews are clamped with a "Read more" toggle
+    function addReadMore(card) {
+        const body = card.querySelector('.review-text');
+        if (body.textContent.length < 260) return;
+        body.classList.add('is-clamped');
+        const toggle = el('button', 'review-more', 'Read more');
+        toggle.type = 'button';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.addEventListener('click', () => {
+            const open = body.classList.toggle('is-clamped') === false;
+            toggle.textContent = open ? 'Show less' : 'Read more';
+            toggle.setAttribute('aria-expanded', String(open));
+        });
+        body.after(toggle);
+    }
+
+    // Kept for adding a review by hand from the console or another script
+    window.addReview = function(name, rating, text, date, lang) {
+        const card = buildReviewCard({
+            name, rating, text, date,
+            sourceLabel: 'Airbnb review',
+            sourceUrl: AIRBNB_REVIEWS_URL,
+            sourceLinkText: 'View on Airbnb',
+            lang: lang || null
+        });
+        reviewsTrack.appendChild(card);
+        addReadMore(card);
+        return card;
     };
+
+    AIRBNB_REVIEWS.forEach(([name, rating, date, text, lang]) => addReview(name, rating, text, date, lang));
+
+    // ---------------------------------------------------------------------
+    // Live Google reviews (Google Maps JavaScript API, Places library)
+    // Fill in both values to switch it on. The key must be restricted in Google Cloud
+    // to the website ramot-getaway.cohen.network/* and to the Maps JavaScript API +
+    // Places API (New). Google's terms don't allow storing review content, so reviews
+    // are fetched fresh, and only once a visitor scrolls near the reviews section.
+    // ---------------------------------------------------------------------
+    const GOOGLE_MAPS_API_KEY = '';
+    const GOOGLE_PLACE_ID = '';
+    const GOOGLE_MIN_STARS = 4;
+
+    const googleSummary = document.getElementById('googleSummary');
+
+    function loadGoogleMaps() {
+        if (window.google && window.google.maps && window.google.maps.importLibrary) return Promise.resolve();
+        return new Promise((resolve, reject) => {
+            window.__ramotGoogleReady = resolve;
+            const s = document.createElement('script');
+            s.src = 'https://maps.googleapis.com/maps/api/js?key=' + encodeURIComponent(GOOGLE_MAPS_API_KEY) +
+                '&v=weekly&language=en&loading=async&callback=__ramotGoogleReady';
+            s.async = true;
+            s.onerror = reject;
+            document.head.appendChild(s);
+        });
+    }
+
+    async function showGoogleReviews() {
+        try {
+            await loadGoogleMaps();
+            const { Place } = await google.maps.importLibrary('places');
+            const place = new Place({ id: GOOGLE_PLACE_ID, requestedLanguage: 'en' });
+            await place.fetchFields({ fields: ['rating', 'userRatingCount', 'reviews', 'googleMapsURI'] });
+
+            const mapsUrl = place.googleMapsURI || 'https://g.page/r/CYj-CBXM5f_1EAI';
+            const reviews = (place.reviews || []).filter(r => (r.rating || 0) >= GOOGLE_MIN_STARS && r.text);
+
+            const anchor = reviewsTrack.firstElementChild;
+            reviews.forEach(r => {
+                const author = r.authorAttribution || {};
+                const card = buildReviewCard({
+                    name: author.displayName || 'Google user',
+                    nameUrl: author.uri || null,
+                    rating: Math.round(r.rating),
+                    text: r.text,
+                    date: r.relativePublishTimeDescription || '',
+                    sourceLabel: 'Google review',
+                    sourceUrl: mapsUrl,
+                    sourceLinkText: 'View on Google Maps',
+                    variant: 'google'
+                });
+                reviewsTrack.insertBefore(card, anchor);
+                addReadMore(card);
+            });
+
+            if (googleSummary && place.rating) {
+                googleSummary.querySelector('[data-g="rating"]').textContent = place.rating.toFixed(1);
+                googleSummary.querySelector('[data-g="count"]').textContent =
+                    `${place.userRatingCount} Google review${place.userRatingCount === 1 ? '' : 's'}`;
+                googleSummary.querySelector('a').href = mapsUrl;
+                googleSummary.hidden = false;
+            }
+            reviewsTrack.scrollLeft = 0;
+            updateReviewButtons();
+        } catch (err) {
+            // The Airbnb reviews stay on the page either way
+            if (window.console) console.warn('Google reviews could not be loaded', err);
+        }
+    }
+
+    if (GOOGLE_MAPS_API_KEY && GOOGLE_PLACE_ID) {
+        const reviewsSection = document.getElementById('reviews');
+        if ('IntersectionObserver' in window) {
+            const googleObserver = new IntersectionObserver(entries => {
+                if (entries.some(e => e.isIntersecting)) {
+                    googleObserver.disconnect();
+                    showGoogleReviews();
+                }
+            }, { rootMargin: '600px 0px' });
+            googleObserver.observe(reviewsSection);
+        } else {
+            showGoogleReviews();
+        }
+    }
 
     // Keyboard navigation for accessibility
     document.addEventListener('keydown', function(e) {
@@ -376,35 +555,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (modalOpen && e.key === 'ArrowRight') showImage(currentIndex + 1);
         if (modalOpen && e.key === 'ArrowLeft') showImage(currentIndex - 1);
     });
-
-    // Reviews from Airbnb guests
-    addReview("Merril", 5, "This was quite a find as the apartment was clean, had a washer/dryer, good sunlight, near several parks, walking distance to Dolev and the Mercaz, was on the ground floor and allows for pets! Also, the host was very responsive even though he was traveling!", "April 2025");
-    
-    addReview("David", 4, "My wife and I genuinely enjoyed our two-week stay at Avremy's apartment in Bet Shemesh Aleph. Once we settled in, we began regarding it as 'cozy comfy,' just big enough to meet all our needs in a charming and comfortable way. The apartment is very modern, and it is designed to maximize every square inch of space.", "January 2025");
-    
-    addReview("Lisa", 5, "This is our 4th time staying at this location. The hosts are kind and thoughtful. This ground level apartment is a modest size but it is quite perfect for a couple. All appliances and accommodations worked well. The bathroom is always clean, and the refrigerator is a perfect size.", "February 2025");
-    
-    addReview("Diane", 5, "Avremy was a very helpful host with all our requests. The place was conveniently located for our Shabbat in RBS and the place was very clean and well maintained. Would definitely stay again.", "September 2024");
-    
-    addReview("Libby", 5, "The location was good. A few minutes drive to grocery stores, and parks within walking distance. We liked that it was a quiet and private neighborhood and on the ground floor. We also really appreciated having parking right in front.", "November 2024");
-    
-    addReview("Monica", 5, "The place is small but very well equipped. It has a private entrance and location is well located in the town. The host was responsive and helpful. Overall it served well for 2 people.", "June 2024");
-    
-    addReview("Jerry", 5, "This is the second time we stayed in this AirBnb. The hosts checked in with us periodically to ensure that everything was ok. We felt very comfortable in the apartment. The location is close to several bus lines, and in walking distance of several grocery stores.", "October 2023");
-    
-    addReview("Carol", 4, "This lovely little apartment is a real gem. It is in a very convenient location and unusual for its size in that it has a separate bedroom. All the other 2 person occupancy apartments in the area we checked out are studios.", "August 2024");
-    
-    addReview("Daniel", 5, "The host is very nice and friendly. The apartment is nice and comfortable, the area is quiet and private. We enjoyed ourselves very much. Thank you :)", "August 2024");
-    
-    addReview("Romy", 5, "It was a perfect stay. Super clean, excellent shower and appliances a/c and had everything we needed. Centrally located, beautifully decorated and most of all very helpful host. Avremy was always there for anything we needed.", "September 2022");
-    
-    addReview("Quint", 5, "A very nice and helpful host. The apartment has corresponded to the specifications. There is a very uncomplicated access to the apartment. In front of the building is always some parking space free. The people on site are all very nice.", "May 2023");
-    
-    addReview("Rebecca", 5, "My good friends stayed here for two nights to be close to family for a bar mitzvah. It was perfect: walking distance on Shabat but still their own space. Quiet and clean. Good heating for the very cold weather we had.", "February 2023");
-    
-    addReview("Lee", 5, "We're picky people but have no complaints after staying here. It fit our needs perfectly.", "August 2023");
-    
-    addReview("Shana", 5, "Accommodation was great - perfect for what we needed. Small and compact, good AC, great location. Avremi was very helpful and friendly. I'm sure we'll be back again in the future. Would highly recommend this apartment.", "June 2022");
 
     updateReviewButtons();
 });
