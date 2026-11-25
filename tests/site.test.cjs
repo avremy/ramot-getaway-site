@@ -39,7 +39,7 @@ test('page initializes once after native DOMContentLoaded and subsequent ticks',
     assert.equal(p.w.Date.now(), Date.parse('2026-11-25T12:00:00Z'));
     assert.equal(new p.w.Date().toISOString(), '2026-11-25T12:00:00.000Z');
     assert.equal(p.calls.filter(c => c[0] === 'init').length, 1);
-    assert.equal(p.d.querySelectorAll('.review-card').length, 16);
+    assert.equal(p.d.querySelectorAll('.review-card').length, 33);
     const button = p.d.querySelector('.hamburger');
     button.click();
     assert.equal(button.getAttribute('aria-expanded'), 'true');
@@ -246,7 +246,7 @@ test('contact success reports send without claiming receipt and restores loading
 test('confirmed testimonials retain wording while Airbnb excerpts have accurate linked attribution', async () => {
   const p = await page();
   const cards = [...p.d.querySelectorAll('.review-card')];
-  assert.equal(cards.length,16);
+  assert.equal(cards.length,33);
   for (const [i,name,date,text] of [[0,'Sarah M.','March 2024','"Amazing place! Perfect location, clean, and very comfortable. The host was super responsive and helpful."'],[1,'David L.','February 2024','"Great spot for a family vacation. The kids loved it and we appreciated the full kitchen and parking."']]) {
     assert.equal(cards[i].querySelector('strong').textContent,name);
     assert.equal(cards[i].querySelector('.review-date').textContent,date);
@@ -255,10 +255,11 @@ test('confirmed testimonials retain wording while Airbnb excerpts have accurate 
     assert.doesNotMatch(cards[i].textContent,/Airbnb/);
   }
   for (const card of cards.slice(2)) {
-    assert.match(card.textContent,/Airbnb review excerpt/);
+    assert.match(card.textContent,/Airbnb review/);
+    assert.ok((card.querySelector('.review-stars').textContent.match(/★/g)||[]).length >= 4);
     assert.equal(card.querySelector('a').href,'https://www.airbnb.com/rooms/615293478807650528/reviews');
   }
-  assert.equal(cards[3].querySelector('.review-stars').textContent,'★★★★☆');
+  assert.equal(cards[6].querySelector('.review-stars').textContent,'★★★★☆');
   p.dom.window.close();
 });
 
