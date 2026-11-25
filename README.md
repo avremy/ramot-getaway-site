@@ -19,6 +19,13 @@ For local visual review, run `python3 -m http.server 8000` and visit `http://loc
 
 Manual browser checks: Tab/Enter/Space menu operation, Escape focus return, mobile closed menu excluded from tab order, desktop resize, focus outlines, photo modal, responsive layout and inline status announcements.
 
+## Design and SEO
+
+- Fonts: Fraunces (display) and Manrope (body) from Google Fonts. Icons are an inline SVG sprite (Lucide, ISC; brand marks from Simple Icons, CC0), so Font Awesome is no longer loaded.
+- Parallax: elements with `data-parallax="<speed>"` move relative to their parent as it crosses the viewport; gallery and hero photos with `data-parallax-img` drift inside their frames; the hero copy (`data-parallax-fade`) lifts and fades. Everything is transform-only, rAF-throttled and switched off under `prefers-reduced-motion`.
+- SEO: title/description, canonical, robots, Open Graph/Twitter cards, `LodgingBusiness` + `Suite` + `FAQPage` JSON-LD, a visible FAQ, an image sitemap, favicons and a web manifest. When the street address or map coordinates are confirmed, add them to the JSON-LD `address`/`geo`.
+- The gallery shows the five Airbnb listing photos only; the four older photos in `images/` were lower-resolution duplicates of the same shots and are kept on disk but not shown.
+
 ## Booking and contact behavior
 
 Both forms show an inline sending status and restore their submit buttons after success or failure. Failed requests retain the guest's entries. The booking fallback is an explicit WhatsApp link containing an encoded draft; the page never opens WhatsApp or sends a WhatsApp message automatically. A successful email request is still not a confirmed reservation. Date validation rejects missing, past and reversed dates; calendar dates are preserved in email parameters and WhatsApp drafts.
