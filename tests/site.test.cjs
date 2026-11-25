@@ -170,7 +170,7 @@ test('availability content states host confirmation, verified property details a
   assert.match(booking, /children.s sleeping arrangements/i);
   assert.match(booking, /crib.*occupancy.*host/i);
   const summary = d.querySelector('#propertySummary'); assert.ok(summary);
-  for (const detail of ['2 adults plus 2 children','1 bedroom','1 double bed','1 bathroom','Ground floor','Free parking','Kitchen','Washer/dryer','lockbox','3pm','10am','1 pet','No smoking']) assert.ok(summary.textContent.includes(detail), detail);
+  for (const detail of ['Sleeps 2 adults','crib or a bed for young children','by arrangement with the host','1 bedroom','1 double bed','1 bathroom','Ground floor','Free parking','Kitchen','Washer/dryer','lockbox','3pm','10am','1 pet','No smoking']) assert.ok(summary.textContent.includes(detail), detail);
   assert.ok(d.querySelector('a[href="https://www.airbnb.com/rooms/615293478807650528"]'));
   assert.ok([...d.querySelectorAll('a')].some(a => a.textContent === 'Book on Airbnb'));
   assert.match(summary.textContent, /house rules and cancellation/i);

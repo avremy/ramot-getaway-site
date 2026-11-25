@@ -7,6 +7,13 @@ document.addEventListener('DOMContentLoaded', function() {
             emailReady = true;
         }
     } catch (_) { /* Forms will offer direct contact; navigation stays usable. */ }
+
+    const root = document.documentElement;
+    root.classList.add('js');
+    const header = document.querySelector('.header');
+    const reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (cb => setTimeout(cb, 16));
+
     // Mobile menu toggle
     const hamburger = document.querySelector('.hamburger');
     const navMenu = document.querySelector('.nav-menu');
@@ -16,9 +23,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const expanded = mobileMenu.matches && open;
         hamburger.classList.toggle('active', expanded);
         navMenu.classList.toggle('active', expanded);
+        header.classList.toggle('menu-open', expanded);
         hamburger.setAttribute('aria-expanded', String(expanded));
         hamburger.setAttribute('aria-label', expanded ? 'Close navigation menu' : 'Open navigation menu');
         navMenu.hidden = mobileMenu.matches && !expanded;
+        document.body.style.overflow = expanded ? 'hidden' : '';
     }
     setMenu(false);
     mobileMenu.addEventListener('change', () => setMenu(false));
@@ -31,65 +40,22 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Smooth scrolling for navigation links
+    // Smooth scrolling for in-page links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
+            const id = this.getAttribute('href');
+            if (id === '#') return;
+            const target = document.querySelector(id);
             if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
+                e.preventDefault();
+                target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+                if (history.replaceState) history.replaceState(null, '', id);
             }
         });
     });
 
-    // Header scroll effect and floating WhatsApp button
-    const whatsappFloat = document.getElementById('whatsappFloat');
-    
-    window.addEventListener('scroll', function() {
-        const header = document.querySelector('.header');
-        const scrollY = window.scrollY;
-        
-        // Header background change
-        if (scrollY > 100) {
-            header.style.background = 'rgba(255, 255, 255, 0.98)';
-        } else {
-            header.style.background = 'rgba(255, 255, 255, 0.95)';
-        }
-        
-        // Show/hide floating WhatsApp button
-        if (scrollY > 300) {
-            whatsappFloat.classList.add('show');
-        } else {
-            whatsappFloat.classList.remove('show');
-        }
-    });
-
-    // Gallery modal
-    const modal = document.getElementById('imageModal');
-    const modalImg = document.getElementById('modalImage');
-    const caption = document.getElementById('caption');
-    const close = document.querySelector('.close');
-
-    document.querySelectorAll('.gallery-item img').forEach(img => {
-        img.addEventListener('click', function() {
-            modal.style.display = 'block';
-            modalImg.src = this.src;
-            caption.innerHTML = this.alt;
-        });
-    });
-
-    close.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.style.display = 'none';
-        }
-    });
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
     // Booking form validation and handling
     const bookingForm = document.getElementById('bookingForm');
@@ -247,53 +213,132 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Animation on scroll
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
+    // Scroll-driven effects: header state, progress bar, floating WhatsApp, parallax
+    const whatsappFloat = document.getElementById('whatsappFloat');
+    const progress = document.getElementById('scrollProgress');
+    const heroContent = document.querySelector('[data-parallax-fade]');
+    const parallaxLayers = reduceMotion ? [] : [...document.querySelectorAll('[data-parallax]')];
+    const parallaxImages = reduceMotion ? [] : [...document.querySelectorAll('[data-parallax-img]')];
+    let ticking = false;
 
-    const observer = new IntersectionObserver(function(entries) {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in-up');
-            }
-        });
-    }, observerOptions);
+    function updateOnScroll() {
+        ticking = false;
+        const scrollY = window.scrollY || window.pageYOffset || 0;
+        const vh = window.innerHeight || 1;
 
-    // Observe elements for animation
-    document.querySelectorAll('.amenity-card, .review-card, .gallery-item').forEach(el => {
-        observer.observe(el);
-    });
+        header.classList.toggle('scrolled', scrollY > 40);
+        whatsappFloat.classList.toggle('show', scrollY > 500);
 
-    // Parallax effect for hero section
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const hero = document.querySelector('.hero');
-        const rate = scrolled * -0.5;
-        
-        if (hero && window.innerWidth > 768) {
-            hero.style.backgroundPosition = `center ${rate}px`;
+        if (progress) {
+            const max = (document.documentElement.scrollHeight - vh) || 1;
+            progress.style.transform = `scaleX(${Math.min(1, Math.max(0, scrollY / max))})`;
         }
-    });
 
-    // Guest counter validation
-    const adultsSelect = document.getElementById('adults');
-    const childrenSelect = document.getElementById('children');
+        // Layers move relative to their (untransformed) parent as it crosses the viewport
+        parallaxLayers.forEach(layer => {
+            const box = layer.parentElement.getBoundingClientRect();
+            if (box.bottom < -100 || box.top > vh + 100) return;
+            const speed = parseFloat(layer.dataset.parallax) || 0;
+            const offset = (box.top + box.height / 2 - vh / 2) * -speed;
+            layer.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+        });
 
-    function validateGuestCount() {
-        const adults = parseInt(adultsSelect.value);
-        const children = parseInt(childrenSelect.value);
-        const total = adults + children;
+        // Gallery photos drift gently inside their frames
+        parallaxImages.forEach(img => {
+            const box = img.parentElement.getBoundingClientRect();
+            if (box.bottom < 0 || box.top > vh) return;
+            const progressIn = (box.top + box.height / 2 - vh / 2) / vh; // roughly -0.5 … 0.5
+            img.style.transform = `translate3d(0, ${(progressIn * -box.height * 0.12).toFixed(1)}px, 0)`;
+        });
 
-        if (total > 4) {
-            alert('Maximum 4 guests allowed (2 adults + 2 children)');
-            childrenSelect.value = Math.max(0, 4 - adults);
+        // Hero copy lifts and fades as you scroll away
+        if (heroContent && !reduceMotion) {
+            const t = Math.min(1, scrollY / (vh * 0.8));
+            heroContent.style.transform = `translate3d(0, ${(t * -60).toFixed(1)}px, 0)`;
+            heroContent.style.opacity = String(1 - t * 0.9);
         }
     }
 
-    adultsSelect.addEventListener('change', validateGuestCount);
-    childrenSelect.addEventListener('change', validateGuestCount);
+    function requestUpdate() {
+        if (!ticking) {
+            ticking = true;
+            raf(updateOnScroll);
+        }
+    }
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    updateOnScroll();
+
+    // Reveal on scroll
+    const revealEls = document.querySelectorAll('.reveal');
+    if ('IntersectionObserver' in window && !reduceMotion) {
+        const revealObserver = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+        revealEls.forEach(el => revealObserver.observe(el));
+    } else {
+        revealEls.forEach(el => el.classList.add('is-visible'));
+    }
+
+    // Gallery lightbox
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImage');
+    const caption = document.getElementById('caption');
+    const close = modal.querySelector('.close');
+    const galleryItems = [...document.querySelectorAll('.gallery-item')];
+    let currentIndex = 0;
+    let lastFocus = null;
+
+    function showImage(index) {
+        currentIndex = (index + galleryItems.length) % galleryItems.length;
+        const img = galleryItems[currentIndex].querySelector('img');
+        modalImg.src = img.getAttribute('src');
+        modalImg.alt = img.alt;
+        caption.textContent = img.alt;
+    }
+    function openModal(index) {
+        lastFocus = document.activeElement;
+        showImage(index);
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        close.focus();
+    }
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        if (lastFocus && lastFocus.focus) lastFocus.focus();
+    }
+
+    galleryItems.forEach((item, i) => item.addEventListener('click', () => openModal(i)));
+    close.addEventListener('click', closeModal);
+    modal.querySelector('.modal-prev').addEventListener('click', () => showImage(currentIndex - 1));
+    modal.querySelector('.modal-next').addEventListener('click', () => showImage(currentIndex + 1));
+    modal.addEventListener('click', e => {
+        if (e.target === modal || e.target.classList.contains('modal-figure')) closeModal();
+    });
+
+    // Reviews carousel buttons
+    const reviewsTrack = document.getElementById('reviewsGrid');
+    const prevBtn = document.getElementById('reviewsPrev');
+    const nextBtn = document.getElementById('reviewsNext');
+    function scrollReviews(direction) {
+        const card = reviewsTrack.querySelector('.review-card');
+        const step = card ? card.getBoundingClientRect().width + 20 : 320;
+        if (reviewsTrack.scrollBy) reviewsTrack.scrollBy({ left: direction * step, behavior: reduceMotion ? 'auto' : 'smooth' });
+    }
+    function updateReviewButtons() {
+        const max = reviewsTrack.scrollWidth - reviewsTrack.clientWidth - 4;
+        prevBtn.disabled = reviewsTrack.scrollLeft <= 4;
+        nextBtn.disabled = max > 0 && reviewsTrack.scrollLeft >= max;
+    }
+    prevBtn.addEventListener('click', () => scrollReviews(-1));
+    nextBtn.addEventListener('click', () => scrollReviews(1));
+    reviewsTrack.addEventListener('scroll', () => raf(updateReviewButtons), { passive: true });
 
     // Add reviews functionality (for manual review addition)
     window.addReview = function(name, rating, text, date) {
@@ -318,37 +363,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Keyboard navigation for accessibility
     document.addEventListener('keydown', function(e) {
+        const modalOpen = modal.style.display === 'block';
         if (e.key === 'Escape') {
-            // Close modal
-            if (modal.style.display === 'block') {
-                modal.style.display = 'none';
-            }
-            
+            if (modalOpen) closeModal();
+
             // Close mobile menu
             if (navMenu.classList.contains('active')) {
                 setMenu(false);
                 hamburger.focus();
             }
         }
+        if (modalOpen && e.key === 'ArrowRight') showImage(currentIndex + 1);
+        if (modalOpen && e.key === 'ArrowLeft') showImage(currentIndex - 1);
     });
-
-    // Image lazy loading fallback for older browsers
-    if ('IntersectionObserver' in window) {
-        const imageObserver = new IntersectionObserver((entries, observer) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = entry.target;
-                    img.src = img.dataset.src || img.src;
-                    img.classList.remove('lazy');
-                    imageObserver.unobserve(img);
-                }
-            });
-        });
-
-        document.querySelectorAll('img[loading="lazy"]').forEach(img => {
-            imageObserver.observe(img);
-        });
-    }
 
     // Reviews from Airbnb guests
     addReview("Merril", 5, "This was quite a find as the apartment was clean, had a washer/dryer, good sunlight, near several parks, walking distance to Dolev and the Mercaz, was on the ground floor and allows for pets! Also, the host was very responsive even though he was traveling!", "April 2025");
@@ -379,5 +406,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     addReview("Shana", 5, "Accommodation was great - perfect for what we needed. Small and compact, good AC, great location. Avremi was very helpful and friendly. I'm sure we'll be back again in the future. Would highly recommend this apartment.", "June 2022");
 
-    console.log('Ramot Getaway website loaded successfully!');
+    updateReviewButtons();
 });
